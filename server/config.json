@@ -1,0 +1,17 @@
+{
+    "site_config": {
+        "host": "0.0.0.0",
+        "port": 1338,
+        "debug": false
+    },
+    "openai_key": "",
+    "openai_api_base": "https://api.openai.com",
+    "proxy": {
+        "enable": false,
+        "http": "127.0.0.1:7890",
+        "https": "127.0.0.1:7890"
+    },
+    "jwt_secret_key": "1234",
+    "database_uri": "sqlite:///users.db",
+    "secret_key": "0000"
+}
