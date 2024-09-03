@@ -129,6 +129,7 @@ button {
 }
 
 .sidebar-info-upgrade,
+.sidebar-info-model,
 .sidebar-info-user {
   display: flex;
   align-items: center;
@@ -138,6 +139,7 @@ button {
 
 .sidebar li:hover,
 .sidebar-info-upgrade:hover,
+.sidebar-info-model:hover,
 .sidebar-info-user:hover {
   background-color: #343541;
   border-radius: 0.3rem;
@@ -145,6 +147,7 @@ button {
 }
 
 .sidebar-info-upgrade:hover,
+/* .sidebar-info-model:hover, */
 .sidebar-info-user:hover {
   cursor: not-allowed;
 }
@@ -277,6 +280,78 @@ button {
 
 .form-container svg:hover {
   fill: #ececf1;
+}
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh ;
+}
+
+.login-box {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 400px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-header {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-label {
+  margin-bottom: 10px;
+  font-weight: bold;
+  width: 100%;
+}
+
+.login-input {
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.login-button {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.login-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.login-footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
 }
 
 @media screen and (min-width: 1280px) {

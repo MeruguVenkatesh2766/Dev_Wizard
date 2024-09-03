@@ -1,8 +1,7 @@
 # run.py
 from flask import Flask
-from server.app import create_app
+from src.app import create_app
 from json import load
-from server.db import db
 
 if __name__ == '__main__':
 
@@ -14,13 +13,9 @@ if __name__ == '__main__':
     # Create the app with the configuration
     app = create_app(config_path=config_path)
 
-    # Create database tables (if they don't already exist)
-    with app.app_context():
-        db.create_all()
-
     # Initialize Website and Backend API
-    from server.website import Website
-    from server.backend import Backend_Api
+    from src.website import Website
+    from src.backend import Backend_Api
 
     site = Website(app)
     for route in site.routes:

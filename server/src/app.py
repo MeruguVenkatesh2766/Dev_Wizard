@@ -1,9 +1,7 @@
 # server/app.py
 from flask import Flask
-from server.db import db, jwt
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
-from server.models import User
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 import json
 import os
 
@@ -18,20 +16,23 @@ def create_app(config_path='config.json'):
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or config['secret_key']
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or config['database_uri']
 
-    # Initialize extensions
-    db.init_app(app)
-    jwt.init_app(app)
+    # Ping MongoDB to check connection
+    # db_main = db  # MongoDB client is initialized via get_db()
+    # jwt.init_app(app)
+     # Initialize JWTManager with the Flask app
+    jwt = JWTManager(app)
+    CORS(app)
 
-    # Initialize Flask-Admin
-    admin = Admin(app, name='MyApp', template_mode='bootstrap3')
-    admin.add_view(ModelView(User, db.session))
+    # # Initialize Flask-Admin
+    # admin = Admin(app, name='MyApp', template_mode='bootstrap3')
+    # admin.add_view(ModelView(User, db.session))
 
     # Register blueprints
-    from server.auth import auth_bp
-    from server.website import website_bp
-    from server.backend import backend_bp
+    from src.auth import auth_bp
+    from src.website import website_bp
+    from src.backend import backend_bp
 
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_bp)
     app.register_blueprint(website_bp)
     app.register_blueprint(backend_bp)
 

@@ -4,31 +4,35 @@ import {
   useRef,
   useCallback,
   useLayoutEffect,
-} from 'react';
-import { BiPlus, BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi';
-import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md';
+} from "react";
+import { BiPlus, BiUser, BiSend, BiSolidUserCircle } from "react-icons/bi";
+import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
+import { fetchChatResponse } from "../utils/fetchChatResponse";
+import ModelSelector from "./components/Model";
+import { handle_ask } from "../utils/chat";
 
 function App() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [message, setMessage] = useState(null);
   const [previousChats, setPreviousChats] = useState([]);
   const [localChats, setLocalChats] = useState([]);
   const [currentTitle, setCurrentTitle] = useState(null);
+  const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo-16k-0613"); // Default model
   const [isResponseLoading, setIsResponseLoading] = useState(false);
-  const [errorText, setErrorText] = useState('');
+  const [errorText, setErrorText] = useState("");
   const [isShowSidebar, setIsShowSidebar] = useState(false);
   const scrollToLastItem = useRef(null);
 
   const createNewChat = () => {
     setMessage(null);
-    setText('');
+    setText("");
     setCurrentTitle(null);
   };
 
   const backToHistoryPrompt = (uniqueTitle) => {
     setCurrentTitle(uniqueTitle);
     setMessage(null);
-    setText('');
+    setText("");
   };
 
   const toggleSidebar = useCallback(() => {
@@ -37,57 +41,24 @@ function App() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    // return setErrorText('My billing plan is gone because of many requests.');
     if (!text) return;
 
     setIsResponseLoading(true);
-    setErrorText('');
-
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': import.meta.env.VITE_AUTH_TOKEN,
-      },
-      body: JSON.stringify({
-        message: text,
-      }),
-    };
+    setErrorText("");
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/completions`,
-        options
-      );
+      const responseMessage = await fetchChatResponse(text);
 
-      if (response.status === 429) {
-        return setErrorText('Too many requests, please try again later.');
-      }
+      setMessage(responseMessage);
+      setText("");
 
-      const data = await response.json();
-
-      if (data.error) {
-        setErrorText(data.error.message);
-        setText('');
-      } else {
-        setErrorText(false);
-      }
-
-      if (!data.error) {
-        setErrorText('');
-        setMessage(data.choices[0].message);
-        setTimeout(() => {
-          scrollToLastItem.current?.lastElementChild?.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }, 1);
-        setTimeout(() => {
-          setText('');
-        }, 2);
-      }
-    } catch (e) {
-      setErrorText(e.message);
-      console.error(e);
+      setTimeout(() => {
+        scrollToLastItem.current?.lastElementChild?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 1);
+    } catch (error) {
+      setErrorText(error.message);
     } finally {
       setIsResponseLoading(false);
     }
@@ -99,15 +70,15 @@ function App() {
     };
     handleResize();
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   useEffect(() => {
-    const storedChats = localStorage.getItem('previousChats');
+    const storedChats = localStorage.getItem("previousChats");
 
     if (storedChats) {
       setLocalChats(JSON.parse(storedChats));
@@ -122,7 +93,7 @@ function App() {
     if (currentTitle && text && message) {
       const newChat = {
         title: currentTitle,
-        role: 'user',
+        role: "user",
         content: text,
       };
 
@@ -136,7 +107,7 @@ function App() {
       setLocalChats((prevChats) => [...prevChats, newChat, responseMessage]);
 
       const updatedChats = [...localChats, newChat, responseMessage];
-      localStorage.setItem('previousChats', JSON.stringify(updatedChats));
+      localStorage.setItem("previousChats", JSON.stringify(updatedChats));
     }
   }, [message, currentTitle]);
 
@@ -154,23 +125,23 @@ function App() {
 
   return (
     <>
-      <div className='container'>
-        <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
-          <div className='sidebar-header' onClick={createNewChat} role='button'>
+      <div className="container">
+        <section className={`sidebar ${isShowSidebar ? "open" : ""}`}>
+          <div className="sidebar-header" onClick={createNewChat} role="button">
             <BiPlus size={20} />
             <button>New Chat</button>
           </div>
-          <div className='sidebar-history'>
+          <div className="sidebar-history">
             {uniqueTitles.length > 0 && previousChats.length !== 0 && (
               <>
                 <p>Ongoing</p>
                 <ul>
                   {uniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li');
+                    const listItems = document.querySelectorAll("li");
 
                     listItems.forEach((item) => {
                       if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow');
+                        item.classList.add("li-overflow-shadow");
                       }
                     });
 
@@ -191,11 +162,11 @@ function App() {
                 <p>Previous</p>
                 <ul>
                   {localUniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li');
+                    const listItems = document.querySelectorAll("li");
 
                     listItems.forEach((item) => {
                       if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow');
+                        item.classList.add("li-overflow-shadow");
                       }
                     });
 
@@ -212,26 +183,30 @@ function App() {
               </>
             )}
           </div>
-          <div className='sidebar-info'>
-            <div className='sidebar-info-upgrade'>
-              <BiUser size={20} />
-              <p>Upgrade plan</p>
+          <div className="sidebar-info">
+            <ModelSelector
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+            />
+            <div className="sidebar-info-upgrade">
+              {/* <BiUser size={20} /> */}
+              <p>Settings</p>
             </div>
-            <div className='sidebar-info-user'>
+            <div className="sidebar-info-user">
               <BiSolidUserCircle size={20} />
-              <p>User</p>
+              <p>Logout</p>
             </div>
           </div>
         </section>
 
-        <section className='main'>
+        <section className="main">
           {!currentTitle && (
-            <div className='empty-chat-container'>
+            <div className="empty-chat-container">
               <img
-                src='images/chatgpt-logo.svg'
+                src="images/chatgpt-logo.svg"
                 width={45}
                 height={45}
-                alt='ChatGPT'
+                alt="ChatGPT"
               />
               <h1>Chat GPT Clone</h1>
               <h3>How can I help you today?</h3>
@@ -240,21 +215,21 @@ function App() {
 
           {isShowSidebar ? (
             <MdOutlineArrowRight
-              className='burger'
+              className="burger"
               size={28.8}
               onClick={toggleSidebar}
             />
           ) : (
             <MdOutlineArrowLeft
-              className='burger'
+              className="burger"
               size={28.8}
               onClick={toggleSidebar}
             />
           )}
-          <div className='main-header'>
+          <div className="main-header">
             <ul>
               {currentChat?.map((chatMsg, idx) => {
-                const isUser = chatMsg.role === 'user';
+                const isUser = chatMsg.role === "user";
 
                 return (
                   <li key={idx} ref={scrollToLastItem}>
@@ -263,16 +238,16 @@ function App() {
                         <BiSolidUserCircle size={28.8} />
                       </div>
                     ) : (
-                      <img src='images/chatgpt-logo.svg' alt='ChatGPT' />
+                      <img src="images/chatgpt-logo.svg" alt="ChatGPT" />
                     )}
                     {isUser ? (
                       <div>
-                        <p className='role-title'>You</p>
+                        <p className="role-title">You</p>
                         <p>{chatMsg.content}</p>
                       </div>
                     ) : (
                       <div>
-                        <p className='role-title'>ChatGPT</p>
+                        <p className="role-title">ChatGPT</p>
                         <p>{chatMsg.content}</p>
                       </div>
                     )}
@@ -281,25 +256,28 @@ function App() {
               })}
             </ul>
           </div>
-          <div className='main-bottom'>
-            {errorText && <p className='errorText'>{errorText}</p>}
+          <div className="main-bottom">
+            {errorText && <p className="errorText">{errorText}</p>}
             {errorText && (
-              <p id='errorTextHint'>
+              <p id="errorTextHint">
                 *You can clone the repository and use your paid OpenAI API key
                 to make this work.
               </p>
             )}
-            <form className='form-container' onSubmit={submitHandler}>
+            <form className="form-container" onSubmit={submitHandler}>
               <input
-                type='text'
-                placeholder='Send a message.'
-                spellCheck='false'
-                value={isResponseLoading ? 'Processing...' : text}
+                type="text"
+                placeholder="Send a message."
+                spellCheck="false"
+                value={isResponseLoading ? "Processing..." : text}
                 onChange={(e) => setText(e.target.value)}
                 readOnly={isResponseLoading}
               />
               {!isResponseLoading && (
-                <button type='submit'>
+                <button
+                  type="submit"
+                  onClick={handle_ask(message, selectedModel)}
+                >
                   <BiSend size={20} />
                 </button>
               )}
