@@ -16,17 +16,18 @@ class Backend_Api:
         self.openai_api_base = os.getenv("OPENAI_API_BASE") or config['openai_api_base']
         self.proxy = config['proxy']
         # Define routes here with their methods
-        self.routes = {
-            '/backend-api/v2/conversation': {
-                'function': self.conversation,
-                'methods': ['POST']
-            },
+        # self.routes = {
+        #     '/backend-api/v2/conversation': {
+        #         'function': self.conversation,
+        #         'methods': ['POST']
+        #     },
             # Add other routes with their respective methods
             # '/another-route': {
             #     'function': self.another_function,
             #     'methods': ['GET', 'POST']
             # }
-        }
+        # }
+    @backend_bp.route('/backend-api/v2/conversation', methods=['POST'])
     def conversation():
         try:
             jailbreak = request.json['jailbreak']

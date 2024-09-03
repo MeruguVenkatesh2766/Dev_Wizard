@@ -1,2 +1,6 @@
 flask
 requests
+flask_jwt_extended
+flask_cors
+werkzeug
+pymongo
