@@ -7,17 +7,13 @@ from src.db import db
 
 auth_bp = Blueprint('auth', __name__)
 
-# Set up MongoDB connection
-mongo_uri = os.getenv('MONGO_URI') or 'your-mongo-uri-here'
-client = MongoClient(mongo_uri)
+# get users collection from db
 users_collection = db.get_collection('users')
-print("DB", users_collection)
 
 # SignUp Route
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    print("DATA", data)
     username = data.get('username')
     password = data.get('password')
 

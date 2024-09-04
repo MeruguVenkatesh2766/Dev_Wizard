@@ -16,12 +16,10 @@ def create_app(config_path='config.json'):
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or config['secret_key']
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or config['database_uri']
 
-    # Ping MongoDB to check connection
-    # db_main = db  # MongoDB client is initialized via get_db()
-    # jwt.init_app(app)
      # Initialize JWTManager with the Flask app
     jwt = JWTManager(app)
-    CORS(app)
+    # Enable CORS with specific settings
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # # Initialize Flask-Admin
     # admin = Admin(app, name='MyApp', template_mode='bootstrap3')
