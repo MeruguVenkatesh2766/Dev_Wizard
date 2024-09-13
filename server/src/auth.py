@@ -1,14 +1,18 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required
-from pymongo import MongoClient
-import os
 from src.db import db
-
-auth_bp = Blueprint('auth', __name__)
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from src.app import app
 
 # get users collection from db
 users_collection = db.get_collection('users')
+
+auth_bp = Blueprint('auth', __name__)
+
+# Initialize Limiter
+limiter = Limiter(get_remote_address, app=app)
 
 # SignUp Route
 @auth_bp.route('/signup', methods=['POST'])
@@ -31,6 +35,7 @@ def signup():
 
 # Login Route
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")  # Limits the login attempts
 def login():
     data = request.get_json()
     username = data.get('username')

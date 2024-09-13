@@ -13,17 +13,26 @@ import ModelSelector from "./components/Model";
 
 function App() {
   const [text, setText] = useState("");
-  const [message, setMessage] = useState(null);
+  const [chatIDs, setChatIDs] = useState([]);
+  const [uniqueTitles, setUniqueTitles] = useState([]);
+  const [localUniqueTitles, setLocalUniqueTitles] = useState([]);
   const [previousChats, setPreviousChats] = useState([]);
   const [localChats, setLocalChats] = useState([]);
   const [currentChats, setCurrentChats] = useState([]);
-  const [chatIDs, setChatIDs] = useState([]);
-  const [currentTitle, setCurrentTitle] = useState(null);
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [message, setMessage] = useState(null);
   const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo-16k-0613"); // Default model
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [isShowSidebar, setIsShowSidebar] = useState(false);
   const scrollToLastItem = useRef(null);
+  const [authToken, setAuthToken] = useState(null);
+
+  useEffect(() => {
+    // Get the auth token from localStorage and set it to state
+    const token = localStorage.getItem("access_token");
+    setAuthToken(token);
+  }, []);
 
   const createNewChat = () => {
     setMessage(null);
@@ -95,11 +104,13 @@ function App() {
     }
     // console.log("SC", JSON.parse(storedChats));
     // setCurrentChats((prevChats) => [...prevChats, JSON.parse(storedChats)]);
-    setCurrentChats([]);
+    // setCurrentChats([]);
+    setCurrentChats(Object.values(storedChats));
   }, []);
 
   useEffect(() => {
     console.log("ENTERED WHEN MESSAGE CHANGED", currentChats);
+
     if (!currentTitle && text && message) {
       setCurrentTitle(text);
     }
@@ -122,21 +133,33 @@ function App() {
 
       const updatedChats = [...localChats, newChat, responseMessage];
       localStorage.setItem("previousChats", JSON.stringify(updatedChats));
-      setCurrentChats((prevChats) => [...prevChats, updatedChats]);
+      setCurrentChats(updatedChats); // Updated correctly
+
+      // Calculate unique titles
+      const uniqueTitles = Array.from(
+        new Set(previousChats.map((prevChat) => prevChat.title))
+      );
+      setUniqueTitles(uniqueTitles.reverse());
+
+      const localUniqueTitles = Array.from(
+        new Set(localChats.map((prevChat) => prevChat.title))
+      ).filter((title) => !uniqueTitles.includes(title));
+
+      setLocalUniqueTitles(localUniqueTitles);
     }
-  }, [message, currentTitle]); // Add `localChats` to the dependency array
+  }, [message, currentTitle, text, localChats, previousChats]); // Add `localChats` to the dependency array
 
   // const currentChat = (localChats || previousChats).filter(
   //   (prevChat) => prevChat.title === currentTitle
   // );
 
-  const uniqueTitles = Array.from(
-    new Set(previousChats.map((prevChat) => prevChat.title).reverse())
-  );
+  // const uniqueTitles = Array.from(
+  //   new Set(previousChats.map((prevChat) => prevChat.title).reverse())
+  // );
 
-  const localUniqueTitles = Array.from(
-    new Set(localChats.map((prevChat) => prevChat.title).reverse())
-  ).filter((title) => !uniqueTitles.includes(title));
+  // const localUniqueTitles = Array.from(
+  //   new Set(localChats.map((prevChat) => prevChat.title).reverse())
+  // ).filter((title) => !uniqueTitles.includes(title));
 
   // const colorThemes = document.querySelectorAll('[name="theme"]');
   // const message_box = document.getElementById('messages');
@@ -230,6 +253,7 @@ function App() {
       );
 
       if (!response.ok) {
+        console.log("RES", response);
         throw new Error(`Failed to fetch response: ${response.statusText}`);
       }
 
@@ -698,8 +722,9 @@ function App() {
                 height={45}
                 alt="ChatGPT"
               />
-              <h1>Chat GPT Clone</h1>
-              <h3>How can I help you today?</h3>
+              <h1>Developer's ChatGPT</h1>
+              <h3>Hello Dev! How can I help you today?</h3>
+              <h3>{authToken ? authToken : "No Auth"}</h3>
             </div>
           )}
 
@@ -748,12 +773,12 @@ function App() {
           </div>
           <div className="main-bottom">
             {errorText && <p className="errorText">{errorText}</p>}
-            {errorText && (
+            {/* {errorText && (
               <p id="errorTextHint">
                 *You can clone the repository and use your paid OpenAI API key
                 to make this work.
               </p>
-            )}
+            )} */}
             <form className="form-container" onSubmit={submitHandler}>
               <input
                 type="text"

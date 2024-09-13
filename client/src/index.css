@@ -146,11 +146,11 @@ button {
   cursor: pointer;
 }
 
-.sidebar-info-upgrade:hover,
-/* .sidebar-info-model:hover, */
+/* .sidebar-info-upgrade:hover,
+.sidebar-info-model:hover,
 .sidebar-info-user:hover {
   cursor: not-allowed;
-}
+} */
 
 .main {
   display: flex;

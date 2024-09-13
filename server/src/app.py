@@ -5,9 +5,9 @@ from flask_jwt_extended import JWTManager
 import json
 import os
 
+app = Flask(__name__, template_folder='./../client/html')
 
 def create_app(config_path='config.json'):
-    app = Flask(__name__, template_folder='./../client/html')
     with open(config_path) as config_file:
         config = json.load(config_file)
     
