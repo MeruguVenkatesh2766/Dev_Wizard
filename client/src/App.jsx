@@ -90,31 +90,60 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const storedChats = {};
+    const storedChats = [];
 
+    // Retrieve chats from localStorage
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key) {
-        storedChats[key] = localStorage.getItem(key);
+      if (key && key.startsWith("conversation:")) {
+        const chat = localStorage.getItem(key);
+        if (chat) {
+          storedChats.push(JSON.parse(chat)); // Parse chat into object
+        }
       }
     }
-    console.log(storedChats);
-    if (storedChats) {
-      // setLocalChats(JSON.parse(storedChats));
+
+    if (storedChats.length > 0) {
+      console.log("Stored Chats Retrieved:", storedChats);
+
+      // Update chats state
+      setCurrentChats(storedChats);
+      setLocalChats(storedChats);
+      setPreviousChats(storedChats);
+
+      // Initialize currentTitle from the most recent stored chat
+      const latestChatTitle = storedChats[storedChats.length - 1].title;
+      if (!currentTitle && latestChatTitle) {
+        setCurrentTitle(latestChatTitle);
+      }
+
+      console.log("Initial currentTitle set to:", latestChatTitle);
+      // Calculate and set unique titles
+      const uniqueTitles = storedChats.map((chat) => chat.title);
+      setUniqueTitles(uniqueTitles.reverse());
+
+      console.log("Unique Titles:", uniqueTitles);
+
+      // Calculate and set local unique titles
+      const localUniqueTitles = uniqueTitles.filter(
+        (title) => !uniqueTitles.includes(title)
+      );
+      setLocalUniqueTitles(localUniqueTitles);
+    } else {
+      // If no stored chats, set currentChats to empty array
+      setCurrentChats([]);
     }
-    // console.log("SC", JSON.parse(storedChats));
-    // setCurrentChats((prevChats) => [...prevChats, JSON.parse(storedChats)]);
-    // setCurrentChats([]);
-    setCurrentChats(Object.values(storedChats));
   }, []);
 
   useEffect(() => {
     console.log("ENTERED WHEN MESSAGE CHANGED", currentChats);
 
+    // If no title is set, and a message/text is provided, set currentTitle
     if (!currentTitle && text && message) {
       setCurrentTitle(text);
     }
 
+    // Process the new message if currentTitle, text, and message exist
     if (currentTitle && text && message) {
       const newChat = {
         title: currentTitle,
@@ -128,26 +157,45 @@ function App() {
         content: message.content,
       };
 
-      setPreviousChats((prevChats) => [...prevChats, newChat, responseMessage]);
-      setLocalChats((prevChats) => [...prevChats, newChat, responseMessage]);
+      // Update previous and local chats
+      const updatedChats = [...previousChats, newChat, responseMessage];
+      setPreviousChats(updatedChats);
+      setLocalChats(updatedChats);
 
-      const updatedChats = [...localChats, newChat, responseMessage];
-      localStorage.setItem("previousChats", JSON.stringify(updatedChats));
-      setCurrentChats(updatedChats); // Updated correctly
+      // Store updated chats in localStorage
+      const conversationId = `conversation:${newChat.title}-${new Date().getTime()}`;
+      localStorage.setItem(
+        conversationId,
+        JSON.stringify({
+          id: conversationId,
+          title: currentTitle,
+          items: [newChat, responseMessage],
+        })
+      );
 
-      // Calculate unique titles
+      // Update currentChats with new chat data
+      setCurrentChats(updatedChats);
+
+      console.log("Updated Chats After Message Change:", updatedChats);
+
+      // Calculate and set unique titles
       const uniqueTitles = Array.from(
-        new Set(previousChats.map((prevChat) => prevChat.title))
+        new Set(updatedChats.map((chat) => chat.title))
       );
       setUniqueTitles(uniqueTitles.reverse());
 
-      const localUniqueTitles = Array.from(
-        new Set(localChats.map((prevChat) => prevChat.title))
-      ).filter((title) => !uniqueTitles.includes(title));
+      console.log("Unique Titles:", uniqueTitles);
 
+      // Calculate and set local unique titles
+      const localUniqueTitles = uniqueTitles.filter(
+        (title) => !uniqueTitles.includes(title)
+      );
       setLocalUniqueTitles(localUniqueTitles);
+
+      console.log("Local Unique Titles:", localUniqueTitles);
     }
-  }, [message, currentTitle, text, localChats, previousChats]); // Add `localChats` to the dependency array
+  }, [message, currentTitle, text, previousChats, localChats]);
+  // Add `localChats` to the dependency array
 
   // const currentChat = (localChats || previousChats).filter(
   //   (prevChat) => prevChat.title === currentTitle
@@ -648,6 +696,7 @@ function App() {
           <div className="sidebar-history">
             {uniqueTitles.length > 0 && previousChats.length !== 0 && (
               <>
+                <p>{JSON.stringify(uniqueTitles)}</p>
                 <p>Ongoing</p>
                 <ul>
                   {uniqueTitles?.map((uniqueTitle, idx) => {

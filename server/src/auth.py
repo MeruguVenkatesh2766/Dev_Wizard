@@ -5,9 +5,7 @@ from src.db import db
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from src.app import app
-
-# get users collection from db
-users_collection = db.get_collection('users')
+from src.models import User  # Import the User class
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -22,16 +20,15 @@ def signup():
     password = data.get('password')
 
     # Check if user already exists
-    if users_collection.find_one({'username': username}):
+    if User.get_user(username) != "User not found.":
         return jsonify({'message': 'User already exists'}), 400
 
+    # Hash the password and create a new user
     hashed_password = generate_password_hash(password)
-    new_user = {'username': username, 'password': hashed_password}
+    new_user = User(username=username, password=hashed_password)
+    user_id = new_user.create_user()
 
-    # Insert new user into MongoDB
-    users_collection.insert_one(new_user)
-
-    return jsonify({'message': 'User created successfully'}), 201
+    return jsonify({'message': 'User created successfully', 'user_id': user_id}), 201
 
 # Login Route
 @auth_bp.route('/login', methods=['POST'])
@@ -41,11 +38,11 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    # Find user in MongoDB
-    user = users_collection.find_one({'username': username})
+    # Find user in MongoDB using User class
+    user = User.get_user(username)
 
-    if user and check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=str(user['_id']))
+    if user != "User not found." and check_password_hash(user['password'], password):
+        access_token = create_access_token(identity=user['user_id'])
         return jsonify({'access_token': access_token}), 200
 
     return jsonify({'message': 'Invalid credentials'}), 401
