@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import App from "./App";
 import Login from "./components/Login";
+import { NavigationProvider } from "./navigationProvider";
 
 // Check if the user is authenticated
 const isAuthenticated = () => {
@@ -22,24 +23,26 @@ const PrivateRoute = ({ element: Element, ...rest }) => {
 const RouteConfig = () => {
   return (
     <Router>
-      <Routes>
-        {/* Chat Routes (Protected) */}
-        <Route path="/chat" element={<PrivateRoute element={App} />} />
-        <Route
-          path="/chat/:conversation_id"
-          element={<PrivateRoute element={App} />}
-        />
+      <NavigationProvider>
+        <Routes>
+          {/* Chat Routes (Protected) */}
+          <Route path="/chat" element={<PrivateRoute element={App} />} />
+          <Route
+            path="/chat/:conversation_id"
+            element={<PrivateRoute element={App} />}
+          />
 
-        {/* Login and Signup Routes (Public) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Login />} />
+          {/* Login and Signup Routes (Public) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Login />} />
 
-        {/* Catch-all route for invalid URLs */}
-        <Route
-          path="*"
-          element={<Navigate to={isAuthenticated() ? "/chat" : "/login"} />}
-        />
-      </Routes>
+          {/* Catch-all route for invalid URLs */}
+          <Route
+            path="*"
+            element={<Navigate to={isAuthenticated() ? "/chat" : "/login"} />}
+          />
+        </Routes>
+      </NavigationProvider>
     </Router>
   );
 };

@@ -9,15 +9,15 @@ import { BiPlus, BiUser, BiSend, BiSolidUserCircle } from "react-icons/bi";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
 import { fetchChatResponse } from "../utils/fetchChatResponse";
 import ModelSelector from "./components/Model";
-// import { handle_ask } from "../utils/chat";
+import { useNavigation } from "./navigationProvider";
 
-function App() {
+const App = () => {
+  const { navigate } = useNavigation();
   const [text, setText] = useState("");
-  const [chatIDs, setChatIDs] = useState([]);
+  const [chatID, setChatID] = useState("");
   const [uniqueTitles, setUniqueTitles] = useState([]);
   const [localUniqueTitles, setLocalUniqueTitles] = useState([]);
   const [previousChats, setPreviousChats] = useState([]);
-  const [localChats, setLocalChats] = useState([]);
   const [currentChats, setCurrentChats] = useState([]);
   const [currentTitle, setCurrentTitle] = useState("");
   const [message, setMessage] = useState(null);
@@ -40,10 +40,12 @@ function App() {
     setCurrentTitle(null);
   };
 
-  const backToHistoryPrompt = (uniqueTitle) => {
+  const backToHistoryPrompt = (uniqueTitle, currentChatID) => {
+    setChatID(currentChatID);
     setCurrentTitle(uniqueTitle);
     setMessage(null);
     setText("");
+    navigate(`/chat/${currentChatID}`);
   };
 
   const toggleSidebar = useCallback(() => {
@@ -108,7 +110,6 @@ function App() {
 
       // Update chats state
       setCurrentChats(storedChats);
-      setLocalChats(storedChats);
       setPreviousChats(storedChats);
 
       // Initialize currentTitle from the most recent stored chat
@@ -124,11 +125,11 @@ function App() {
 
       console.log("Unique Titles:", uniqueTitles);
 
-      // Calculate and set local unique titles
-      const localUniqueTitles = uniqueTitles.filter(
-        (title) => !uniqueTitles.includes(title)
-      );
-      setLocalUniqueTitles(localUniqueTitles);
+      // // Calculate and set local unique titles
+      // const localUniqueTitles = uniqueTitles.filter(
+      //   (title) => !uniqueTitles.includes(title)
+      // );
+      // setLocalUniqueTitles(localUniqueTitles);
     } else {
       // If no stored chats, set currentChats to empty array
       setCurrentChats([]);
@@ -160,7 +161,6 @@ function App() {
       // Update previous and local chats
       const updatedChats = [...previousChats, newChat, responseMessage];
       setPreviousChats(updatedChats);
-      setLocalChats(updatedChats);
 
       // Store updated chats in localStorage
       const conversationId = `conversation:${newChat.title}-${new Date().getTime()}`;
@@ -186,28 +186,15 @@ function App() {
 
       console.log("Unique Titles:", uniqueTitles);
 
-      // Calculate and set local unique titles
-      const localUniqueTitles = uniqueTitles.filter(
-        (title) => !uniqueTitles.includes(title)
-      );
-      setLocalUniqueTitles(localUniqueTitles);
+      // // Calculate and set local unique titles
+      // const localUniqueTitles = uniqueTitles.filter(
+      //   (title) => !uniqueTitles.includes(title)
+      // );
+      // setLocalUniqueTitles(localUniqueTitles);
 
-      console.log("Local Unique Titles:", localUniqueTitles);
+      // console.log("Local Unique Titles:", localUniqueTitles);
     }
-  }, [message, currentTitle, text, previousChats, localChats]);
-  // Add `localChats` to the dependency array
-
-  // const currentChat = (localChats || previousChats).filter(
-  //   (prevChat) => prevChat.title === currentTitle
-  // );
-
-  // const uniqueTitles = Array.from(
-  //   new Set(previousChats.map((prevChat) => prevChat.title).reverse())
-  // );
-
-  // const localUniqueTitles = Array.from(
-  //   new Set(localChats.map((prevChat) => prevChat.title).reverse())
-  // ).filter((title) => !uniqueTitles.includes(title));
+  }, [message, currentTitle, text, previousChats]);
 
   // const colorThemes = document.querySelectorAll('[name="theme"]');
   // const message_box = document.getElementById('messages');
@@ -691,7 +678,14 @@ function App() {
         <section className={`sidebar ${isShowSidebar ? "open" : ""}`}>
           <div className="sidebar-header" onClick={createNewChat} role="button">
             <BiPlus size={20} />
-            <button>New Chat</button>
+            <button
+              onClick={() => {
+                navigate("/chat"), setChatID(null);
+                setCurrentTitle("");
+              }}
+            >
+              New Chat
+            </button>
           </div>
           <div className="sidebar-history">
             {uniqueTitles.length > 0 && previousChats.length !== 0 && (
@@ -710,9 +704,15 @@ function App() {
 
                     return (
                       <li
-                        key={idx}
-                        onClick={() => backToHistoryPrompt(uniqueTitle)}
+                        key={JSON.stringify(currentChats[idx]["id"])}
+                        onClick={() =>
+                          backToHistoryPrompt(
+                            uniqueTitle,
+                            currentChats[idx]["id"]
+                          )
+                        }
                       >
+                        {}
                         {uniqueTitle}
                       </li>
                     );
@@ -720,7 +720,7 @@ function App() {
                 </ul>
               </>
             )}
-            {localUniqueTitles.length > 0 && localChats.length !== 0 && (
+            {/* {localUniqueTitles.length > 0 && localChats.length !== 0 && (
               <>
                 <p>Previous</p>
                 <ul>
@@ -736,7 +736,12 @@ function App() {
                     return (
                       <li
                         key={idx}
-                        onClick={() => backToHistoryPrompt(uniqueTitle)}
+                        onClick={() =>
+                          backToHistoryPrompt(
+                            uniqueTitle,
+                            currentChats[idx]["id"]
+                          )
+                        }
                       >
                         {uniqueTitle}
                       </li>
@@ -744,7 +749,7 @@ function App() {
                   })}
                 </ul>
               </>
-            )}
+            )} */}
           </div>
           <div className="sidebar-info">
             <ModelSelector
@@ -792,34 +797,32 @@ function App() {
           )}
           <div className="main-header">
             <ul>
-              {currentChats?.map((chatMsg, idx) => {
-                const isUser = chatMsg.role === "user";
+              {currentChats?.map((chat, chatIdx) =>
+                chat.items.map((chatMsg, msgIdx) => {
+                  const isUser = chatMsg.role === "user";
 
-                return (
-                  <li key={idx} ref={scrollToLastItem}>
-                    {isUser ? (
+                  return (
+                    <li key={`${chatIdx}-${msgIdx}`} ref={scrollToLastItem}>
+                      {isUser ? (
+                        <div>
+                          <BiSolidUserCircle size={28.8} />
+                        </div>
+                      ) : (
+                        <img src="images/chatgpt-logo.svg" alt="ChatGPT" />
+                      )}
                       <div>
-                        <BiSolidUserCircle size={28.8} />
-                      </div>
-                    ) : (
-                      <img src="images/chatgpt-logo.svg" alt="ChatGPT" />
-                    )}
-                    {isUser ? (
-                      <div>
-                        <p className="role-title">You</p>
+                        <p className="role-title">
+                          {isUser ? "You" : "ChatGPT"}
+                        </p>
                         <p>{chatMsg.content}</p>
                       </div>
-                    ) : (
-                      <div>
-                        <p className="role-title">ChatGPT</p>
-                        <p>{chatMsg.content}</p>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
+                    </li>
+                  );
+                })
+              )}
             </ul>
           </div>
+
           <div className="main-bottom">
             {errorText && <p className="errorText">{errorText}</p>}
             {/* {errorText && (
@@ -855,6 +858,6 @@ function App() {
       </div>
     </>
   );
-}
+};
 
 export default App;

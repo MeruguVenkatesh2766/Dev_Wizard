@@ -59,15 +59,17 @@ class User:
 
 
 class Chat:
-    def __init__(self, user_question, gpt_response, chat_id=None):
+    def __init__(self, user_question, gpt_response, date, chat_id=None):
         self.chat_id = chat_id  # If `chat_id` is not provided, it's considered a new chat
         self.user_question = user_question
         self.gpt_response = gpt_response
+        self.date = date
 
     def to_dict(self):
         return {
             'user_question': self.user_question,
-            'gpt_response': self.gpt_response
+            'gpt_response': self.gpt_response,
+            'date': self.date
         }
 
     # Create a new chat
