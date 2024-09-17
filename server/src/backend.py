@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, app, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 from requests import post
 from datetime import datetime
 import os
@@ -21,10 +21,13 @@ class Backend_Api:
     @backend_bp.route('/backend-api/v2/conversation', methods=['POST'])
     def conversation():
         try:
+            # Extract information from the request while the request context is still active
             _conversation = request.json['meta']['content']['conversation']
             prompt = request.json['meta']['content']['parts'][0]
-            system_message = 'You are a helpful assistant.'
+            chat_id = request.json.get('conversation_id')  # Extract chat_id here
+            user_question = prompt['content']  # Extract user question here
 
+            system_message = 'You are a helpful assistant.'
             conversation = [{'role': 'system', 'content': system_message}] + _conversation + [prompt]
 
             openai_api_base = os.getenv("OPENAI_API_BASE") or config['openai_api_base']
@@ -64,13 +67,16 @@ class Backend_Api:
                             continue
                 
                 # Save the chat to the database after the full response is received
-                chat_id = request.json.get('conversation_id')
-                user_question = prompt['content']
-                chat = Chat(user_question, full_response, chat_id)
+                chat = Chat(user_question, full_response, datetime.now(), chat_id)
+                print(f"Creating new chat: {chat_id} with user_question: {user_question}")
+
                 if chat_id:
+                    print(f"Updating existing chat with chat_id: {chat_id}")
                     chat.update_existing_chat()
                 else:
+                    print("Creating a new chat entry.")
                     chat.create_new_chat()
+
 
             return Response(stream(), mimetype='text/event-stream')
 

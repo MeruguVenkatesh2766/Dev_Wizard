@@ -80,14 +80,15 @@ class Chat:
             'chat_id': self.chat_id,
             'conversations': [self.to_dict()]  # Store the first conversation
         }
-        result = db['chat'].insert_one(chat_data)
+        print("CHAT_DATA", chat_data)
+        result = db['chats'].insert_one(chat_data)
         return f"New chat created with chat_id: {self.chat_id}"
 
     # Read (retrieve) a chat by its chat_id
     @staticmethod
     def get_chat_by_id(chat_id):
         """Retrieve a chat by its chat_id."""
-        chat = db['chat'].find_one({'chat_id': chat_id})
+        chat = db['chats'].find_one({'chat_id': chat_id})
         if chat:
             return chat
         return "Chat not found."
@@ -99,11 +100,11 @@ class Chat:
             raise ValueError("chat_id is required to update an existing chat.")
 
         # Check if the chat exists in the database
-        existing_chat = db['chat'].find_one({'chat_id': self.chat_id})
+        existing_chat = db['chats'].find_one({'chat_id': self.chat_id})
 
         if existing_chat:
             # Chat exists, append the new conversation to the 'conversations' array
-            db['chat'].update_one(
+            db['chats'].update_one(
                 {'chat_id': self.chat_id},
                 {'$push': {'conversations': self.to_dict()}}
             )
@@ -115,7 +116,7 @@ class Chat:
     @staticmethod
     def delete_chat(chat_id):
         """Delete a chat from the database."""
-        result = db['chat'].delete_one({'chat_id': chat_id})
+        result = db['chats'].delete_one({'chat_id': chat_id})
         if result.deleted_count > 0:
             return f"Chat {chat_id} deleted successfully."
         return "Chat not found."

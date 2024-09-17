@@ -16,9 +16,9 @@ const App = () => {
   const [text, setText] = useState("");
   const [chatID, setChatID] = useState("");
   const [uniqueTitles, setUniqueTitles] = useState([]);
-  const [localUniqueTitles, setLocalUniqueTitles] = useState([]);
   const [previousChats, setPreviousChats] = useState([]);
   const [currentChats, setCurrentChats] = useState([]);
+  const [currentChat, setCurrentChat] = useState([]);
   const [currentTitle, setCurrentTitle] = useState("");
   const [message, setMessage] = useState(null);
   const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo-16k-0613"); // Default model
@@ -60,6 +60,19 @@ const App = () => {
     setErrorText("");
 
     try {
+      // const response = await fetch(`http://127.0.0.1:1338/chats`, {
+      //   method: "GET",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     username: email,
+      //     password: password,
+      //   }),
+      // });
+
+      // const data = await response.json();
+      // console.log("DATA", data)
       // Call `handle_ask` to get the response from the assistant
       const responseMessage = await handle_ask(text, selectedModel);
       console.log("responseMessage", responseMessage);
@@ -112,13 +125,13 @@ const App = () => {
       setCurrentChats(storedChats);
       setPreviousChats(storedChats);
 
-      // Initialize currentTitle from the most recent stored chat
-      const latestChatTitle = storedChats[storedChats.length - 1].title;
-      if (!currentTitle && latestChatTitle) {
-        setCurrentTitle(latestChatTitle);
-      }
+      // // Initialize currentTitle from the most recent stored chat
+      // const latestChatTitle = storedChats[storedChats.length - 1].title;
+      // if (!currentTitle && latestChatTitle) {
+      //   setCurrentTitle(latestChatTitle);
+      // }
 
-      console.log("Initial currentTitle set to:", latestChatTitle);
+      // console.log("Initial currentTitle set to:", latestChatTitle);
       // Calculate and set unique titles
       const uniqueTitles = storedChats.map((chat) => chat.title);
       setUniqueTitles(uniqueTitles.reverse());
@@ -240,7 +253,7 @@ const App = () => {
       if (!message || typeof message !== "string") {
         throw new Error("Invalid message");
       }
-      window.conversation_id = uuid();
+      // window.conversation_id = uuid();
       // Add the user message to the conversation
       add_conversation(window.conversation_id, message.substr(0, 20));
       window.scrollTo(0, 0);
@@ -444,6 +457,7 @@ const App = () => {
   };
 
   const add_conversation = async (conversation_id, title) => {
+    setCurrentTitle(title)
     if (localStorage.getItem(`conversation:${conversation_id}`) === null) {
       localStorage.setItem(
         `conversation:${conversation_id}`,
@@ -795,9 +809,9 @@ const App = () => {
               onClick={toggleSidebar}
             />
           )}
-          <div className="main-header">
+          {currentTitle && <div className="main-header">
             <ul>
-              {currentChats?.map((chat, chatIdx) =>
+              { currentChats?.map((chat, chatIdx) =>
                 chat.items.map((chatMsg, msgIdx) => {
                   const isUser = chatMsg.role === "user";
 
@@ -821,7 +835,7 @@ const App = () => {
                 })
               )}
             </ul>
-          </div>
+          </div>}
 
           <div className="main-bottom">
             {errorText && <p className="errorText">{errorText}</p>}
