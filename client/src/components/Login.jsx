@@ -45,7 +45,7 @@ const LoginPage = () => {
       <div className="login-box">
         <h1 className="login-header">
           {window.location.href.includes("login") ? "Sign in" : "Sign up"} to
-          ChatGPT
+          Dev Wizard
         </h1>
         <form className="login-form" onSubmit={handleSubmit}>
           <label className="login-label">

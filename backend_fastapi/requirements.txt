@@ -1,0 +1,14 @@
+
+fastapi             # Core FastAPI framework
+uvicorn             # ASGI server for FastAPI
+pymongo             # MongoDB driver
+# motor               # Async MongoDB driver (optional, recommended for async operations)
+pyjwt               # For JWT handling (authentication)
+passlib             # For password hashing
+python-dotenv       # For environment variable management
+requests            # For making HTTP requests (external APIs like OpenAI)
+# loguru              # For improved logging (optional but recommended)
+# sentry-sdk          # For error tracking (optional for production)
+# pytest              # For testing
+httpx               # For testing FastAPI endpoints
+# gunicorn            # Production WSGI server (optional, if using for deployment)

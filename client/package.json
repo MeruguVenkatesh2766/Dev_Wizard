@@ -13,6 +13,8 @@
     "prettier:fix": "prettier --w ."
   },
   "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.0.3",
+    "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@upstash/ratelimit": "^1.0.1",
     "@upstash/redis": "^1.28.3",
     "cors": "^2.8.5",

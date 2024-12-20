@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import App from "./App";
+import { ChatBot } from "./components/App";
 import Login from "./components/Login";
 
 const RouteConfig = () => {
@@ -8,11 +8,11 @@ const RouteConfig = () => {
     <Router>
       <Routes>
         {/* Home Route */}
-        {/* <Route path="/" element={<Home />} /> */}
+        {/* <Route path="/" element={<ChatBot />} /> */}
 
         {/* Chat Routes */}
-        <Route path="/chat" element={<App />} />
-        <Route path="/chat/:conversation_id" element={<App />} />
+        <Route path="/chat" element={<ChatBot />} />
+        <Route path="/chat/:conversation_id" element={<ChatBot />} />
 
         {/* Assets Route */}
         {/* <Route path="/assets/:folder/:file" element={<Assets />} /> */}
