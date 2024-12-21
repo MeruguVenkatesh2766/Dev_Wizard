@@ -73,6 +73,6 @@ class BackendAPI:
 backend_api = BackendAPI(config)
 
 # Route for conversation API
-@backend_router.post("/backend-api/v2/conversation")
+@backend_router.post("/v2/conversation")
 async def conversation(conversation_request: ConversationRequest):
     return await backend_api.conversation(conversation_request)
