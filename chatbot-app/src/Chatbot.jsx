@@ -33,19 +33,12 @@ import {
 
 const drawerWidth = 240;
 
-// Available models data
-const availableModels = [
-  { id: "gpt-4", name: "GPT-4" },
-  { id: "gpt-3.5", name: "GPT-3.5" },
-  { id: "claude-3", name: "Claude 3" },
-  { id: "claude-2", name: "Claude 2" },
-];
-
-const Chatbot = () => {
+const ChatBot = ({ models }) => {
   const [messages, setMessages] = useState([]);
+  const [apiKey, setApiKey] = useState("");
   const [input, setInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("gpt-4");
+  const [selectedModel, setSelectedModel] = useState(models[0]?.id || "");
   const [settings, setSettings] = useState({
     darkMode: false,
     notifications: true,
@@ -61,6 +54,10 @@ const Chatbot = () => {
 
   const handleModelChange = (event) => {
     setSelectedModel(event.target.value);
+  };
+
+  const handleApiKeyChange = (event) => {
+    setApiKey(event.target.value);
   };
 
   const handleInputChange = (event) => {
@@ -80,8 +77,11 @@ const Chatbot = () => {
 
   const handleLogout = () => {
     console.log("Logging out...");
+    localStorage.setItem("access_token", "");
+    window.location.href = "/login";
   };
 
+  // Update the message response to use the actual model name
   const handleSendMessage = () => {
     if (input.trim() !== "") {
       setMessages((prevMessages) => [
@@ -90,12 +90,11 @@ const Chatbot = () => {
       ]);
       setInput("");
       setTimeout(() => {
+        const selectedModelData = models.find((m) => m.id === selectedModel);
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            text: `Response from ${
-              availableModels.find((m) => m.id === selectedModel).name
-            }`,
+            text: `Response from ${selectedModelData.name}`,
             sender: "bot",
           },
         ]);
@@ -110,6 +109,7 @@ const Chatbot = () => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        cursor: "pointer",
       }}
     >
       {/* Previous drawer content remains the same */}
@@ -132,7 +132,7 @@ const Chatbot = () => {
       </Box>
       <Divider />
 
-      <List>
+      {/* <List>
         <ListItem>
           <ListItemIcon>
             <FaMoon />
@@ -153,7 +153,7 @@ const Chatbot = () => {
             onChange={() => handleSettingChange("notifications")}
           />
         </ListItem>
-      </List>
+      </List> */}
       <Divider />
 
       <Typography variant="h6" sx={{ p: 2 }}>
@@ -197,7 +197,14 @@ const Chatbot = () => {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "lightyellow",
+      }}
+    >
       <Drawer
         variant="temporary"
         open={drawerOpen}
@@ -214,39 +221,53 @@ const Chatbot = () => {
         {drawer}
       </Drawer>
 
-      <Box sx={{ flexGrow: 1 }}>
-        <Container
-          maxWidth="xs"
-          style={{ minHeight: "100vh", margin: 0, minWidth: "100%" }}
-        >
-          <Paper sx={{ flex: 1, padding: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mb: 2,
-                justifyContent: "space-between",
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Box
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    cursor: "pointer",
-                    mr: 2,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <FaBars size={24} />
-                </Box>
-                <Typography variant="h6">
-                  Chatbot <FaRegComments />
-                </Typography>
+      <Container
+        maxWidth="xs"
+        style={{
+          flexGrow: 1,
+          minHeight: "100vh",
+          margin: 0,
+          minWidth: "80%",
+          maxWidth: "80%",
+          gap: "10px",
+        }}
+      >
+        <Paper sx={{ flex: 1, padding: 2, margin: "10px 0" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mb: 2,
+              justifyContent: "space-between",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box
+                onClick={handleDrawerToggle}
+                sx={{
+                  cursor: "pointer",
+                  mr: 2,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <FaBars size={24} />
               </Box>
+              <Typography variant="h6">
+                ChatBot <FaRegComments />
+              </Typography>
+            </Box>
 
-              {/* Model Selector */}
-              <FormControl sx={{ minWidth: 120 }} size="small">
+            {/* Model Selector */}
+            <FormControl size="small">
+              <Box sx={{ display: "flex", gap: "1rem" }}>
+                <TextField
+                  sx={{ minWidth: "350px" }}
+                  label="Type your api-key here"
+                  variant="outlined"
+                  value={apiKey}
+                  onChange={handleApiKeyChange}
+                />
                 <Select
                   value={selectedModel}
                   onChange={handleModelChange}
@@ -259,7 +280,7 @@ const Chatbot = () => {
                     },
                   }}
                 >
-                  {availableModels.map((model) => (
+                  {models.map((model) => (
                     <MenuItem
                       key={model.id}
                       value={model.id}
@@ -270,39 +291,46 @@ const Chatbot = () => {
                       }}
                     >
                       <FaRobot />
-                      {model.name}
+                      <Box sx={{ display: "flex", flexDirection: "column" }}>
+                        <Typography variant="body2">{model.name}</Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          {model.source}
+                        </Typography>
+                      </Box>
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
-            </Box>
+              </Box>
+            </FormControl>
+          </Box>
 
-            <Box sx={{ overflow: "auto" }}>
-              {messages.map((msg, index) => (
-                <Box
-                  key={index}
+          <Box sx={{ overflow: "auto", minHeight: "65vh", maxHeight: "65vh" }}>
+            {messages.map((msg, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  flexDirection: msg.sender === "bot" ? "row" : "row-reverse",
+                  mb: 2,
+                }}
+              >
+                <Paper
                   sx={{
-                    display: "flex",
-                    flexDirection: msg.sender === "bot" ? "row" : "row-reverse",
-                    mb: 2,
+                    padding: 1,
+                    backgroundColor:
+                      msg.sender === "bot" ? "#f0f0f0" : "#6200ea",
+                    color: msg.sender === "bot" ? "black" : "white",
                   }}
                 >
-                  <Paper
-                    sx={{
-                      padding: 1,
-                      backgroundColor:
-                        msg.sender === "bot" ? "#f0f0f0" : "#6200ea",
-                      color: msg.sender === "bot" ? "black" : "white",
-                    }}
-                  >
-                    <Typography variant="body1">{msg.text}</Typography>
-                  </Paper>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
+                  <Typography variant="body1">{msg.text}</Typography>
+                </Paper>
+              </Box>
+            ))}
+          </Box>
+        </Paper>
 
-          <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
+        <Paper sx={{ flex: 1, padding: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <TextField
               label="Type a message"
               variant="outlined"
@@ -315,10 +343,10 @@ const Chatbot = () => {
               Send
             </Button>
           </Box>
-        </Container>
-      </Box>
+        </Paper>
+      </Container>
     </Box>
   );
 };
 
-export default Chatbot;
+export default ChatBot;

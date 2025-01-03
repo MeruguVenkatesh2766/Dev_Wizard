@@ -28,7 +28,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Helper function to create JWT token
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=15)):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc).strftime("%Y-%m-%d") + expires_delta
+    expire = datetime.now(timezone.utc) + expires_delta  # Add timedelta to current datetime
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -36,7 +36,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
 # SignUp Route
 @auth_router.post("/signup")
 async def signup(user: User):
-    existing_user = users_collection.find_one({'username': user.username})
+    existing_user = await users_collection.find_one({'username': user.username})
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
     
@@ -49,9 +49,15 @@ async def signup(user: User):
 # Login Route
 @auth_router.post("/login")
 async def login(user: User):
-    db_user = users_collection.find_one({'username': user.username})
-    if not db_user or not check_password_hash(db_user['password'], user.password):
+    db_user = await users_collection.find_one({'username': user.username})
+    
+    if not db_user:
+        print(f"User not found: {user.username}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
+    
+    if not check_password_hash(db_user['password'], user.password):
+        print(f"Password mismatch for user: {user.username}")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
     access_token = create_access_token(data={"sub": db_user['username']})
     return {"access_token": access_token, "token_type": "bearer"}

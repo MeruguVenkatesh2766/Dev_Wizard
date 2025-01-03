@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.auth import auth_router
+from api.models import models_router
 from api.chat import backend_router
 from dotenv import load_dotenv
 from database.db import init_models_database
@@ -31,8 +33,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change "*" to specific origins if needed for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Include routers with custom prefixes
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(auth_router, prefix="/backend-api", tags=["Auth"])
+app.include_router(models_router, prefix="/backend-api", tags=["Models"])
 app.include_router(backend_router, prefix="/backend-api", tags=["Backend"])
 
 # Root route to test the domain
