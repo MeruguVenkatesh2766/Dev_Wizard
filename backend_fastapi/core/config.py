@@ -1,43 +1,169 @@
-models = {
-    # 'text-gpt-0040-render-sha-0': 'gpt-4',
-    # 'text-gpt-0035-render-sha-0': 'gpt-3.5-turbo',
-    # 'text-gpt-0035-render-sha-0301': 'gpt-3.5-turbo-0314',
-    'text-gpt-0035-render-sha-0613': 'gpt-3.5-turbo-16k-0613',
-    'text-gpt-0035-render-sha-0125': 'gpt-3.5-turbo-0125',
-    # 'text-gpt-0040-render-sha-0314': 'gpt-4-0314',
-    # 'text-gpt-0040-render-sha-turbo': 'gpt-4-turbo',
-    # 'text-gpt-4o-render-sha-0': 'gpt-4o',
-}
-
-special_instructions = {
-    'default': [
+{
+  "ai-models":{
+    "openai_models": [
         {
-            "role": "system",
-            "content": "You are a helpful assistant."
+        "model_id": "GPT35TRB",
+        "model_name": "gpt-3.5-turbo",
+        "model_url": "https://api.openai.com/v1/chat/completions"
+        },
+        {
+        "model_id": "GPT35T16K",
+        "model_name": "gpt-3.5-turbo-16k",
+        "model_url": "https://api.openai.com/v1/chat/completions"
+        },
+        {
+        "model_id": "GPT4BASE",
+        "model_name": "gpt-4",
+        "model_url": "https://api.openai.com/v1/chat/completions"
+        },
+        {
+        "model_id": "GPT432KM",
+        "model_name": "gpt-4-32k",
+        "model_url": "https://api.openai.com/v1/chat/completions"
+        },
+        {
+        "model_id": "GPT4TRBP",
+        "model_name": "gpt-4-turbo-preview",
+        "model_url": "https://api.openai.com/v1/chat/completions"
         }
     ],
-    'math-genius': [
+    "google_models": [
         {
-            'role': 'system',
-            'content': 'You are an expert in mathematics, capable of solving complex equations and explaining mathematical concepts in a clear and concise manner. Your responses should be focused on helping users understand mathematical principles and solve problems effectively.'
+        "model_id": "GEMNIPRO",
+        "model_name": "gemini-pro",
+        "model_url": "https://generativelanguage.googleapis.com/v1/models/gemini-pro"
+        },
+        {
+        "model_id": "GEMNIPROV",
+        "model_name": "gemini-pro-vision",
+        "model_url": "https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision"
         }
     ],
-    'science-expert': [
+    "qwen_models": [
         {
-            'role': 'system',
-            'content': 'You are a science educator with deep knowledge in various scientific disciplines, including physics, chemistry, and biology. Your goal is to provide educational content that helps users learn and understand scientific concepts, theories, and experiments.'
+        "model_id": "QWEN15S5",
+        "model_name": "Qwen/Qwen1.5-0.5B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-0.5B"
+        },
+        {
+        "model_id": "QWEN15S8",
+        "model_name": "Qwen/Qwen1.5-1.8B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-1.8B"
+        },
+        {
+        "model_id": "QWEN15S4",
+        "model_name": "Qwen/Qwen1.5-4B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-4B"
+        },
+        {
+        "model_id": "QWEN15S7",
+        "model_name": "Qwen/Qwen1.5-7B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-7B"
+        },
+        {
+        "model_id": "QWEN1514",
+        "model_name": "Qwen/Qwen1.5-14B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-14B"
+        },
+        {
+        "model_id": "QWEN1572",
+        "model_name": "Qwen/Qwen1.5-72B",
+        "model_url": "https://huggingface.co/Qwen/Qwen1.5-72B"
+        },
+        {
+        "model_id": "QWEN2S18",
+        "model_name": "Qwen/Qwen2-1.8B",
+        "model_url": "https://huggingface.co/Qwen/Qwen2-1.8B"
+        },
+        {
+        "model_id": "QWEN2S4B",
+        "model_name": "Qwen/Qwen2-4B",
+        "model_url": "https://huggingface.co/Qwen/Qwen2-4B"
+        },
+        {
+        "model_id": "QWEN2S7B",
+        "model_name": "Qwen/Qwen2-7B",
+        "model_url": "https://huggingface.co/Qwen/Qwen2-7B"
+        },
+        {
+        "model_id": "QWEN2S72",
+        "model_name": "Qwen/Qwen2-72B",
+        "model_url": "https://huggingface.co/Qwen/Qwen2-72B"
+        },
+        {
+        "model_id": "QWN25I7B",
+        "model_name": "Qwen/Qwen2.5-7B-Instruct",
+        "model_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct"
+        },
+        {
+        "model_id": "QWN25I72",
+        "model_name": "Qwen/Qwen2.5-72B-Instruct",
+        "model_url": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct"
         }
     ],
-    'language-tutor': [
+    "llama_models": [
         {
-            'role': 'system',
-            'content': 'You are a language tutor specializing in helping users improve their language skills. Whether it’s grammar, vocabulary, writing, or conversation, your responses should be educational and aimed at enhancing the user’s language proficiency.'
+        "model_id": "LLAMA27B",
+        "model_name": "Llama-2-7b",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-7b"
+        },
+        {
+        "model_id": "LLAMA213",
+        "model_name": "Llama-2-13b",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-13b"
+        },
+        {
+        "model_id": "LLAMA270",
+        "model_name": "Llama-2-70b",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-70b"
+        },
+        {
+        "model_id": "LMA27BCH",
+        "model_name": "Llama-2-7b-chat",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-7b-chat"
+        },
+        {
+        "model_id": "LMA213CH",
+        "model_name": "Llama-2-13b-chat",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-13b-chat"
+        },
+        {
+        "model_id": "LMA270CH",
+        "model_name": "Llama-2-70b-chat",
+        "model_url": "https://huggingface.co/meta-llama/Llama-2-70b-chat"
         }
     ],
-    'history-scholar': [
+    "anthropic_models": [
         {
-            'role': 'system',
-            'content': 'You are a history scholar with extensive knowledge of global history. Your role is to provide accurate historical information, help users understand historical events, and discuss their significance in an educational context.'
+        "model_id": "CL35SNT1",
+        "model_name": "claude-3-5-sonnet-20241022",
+        "model_url": "https://api.anthropic.com/v1/messages"
+        },
+        {
+        "model_id": "CL3OPUS1",
+        "model_name": "claude-3-opus-20240229",
+        "model_url": "https://api.anthropic.com/v1/messages"
+        },
+        {
+        "model_id": "CL3HAIK1",
+        "model_name": "claude-3-haiku-20240307",
+        "model_url": "https://api.anthropic.com/v1/messages"
+        },
+        {
+        "model_id": "CL2DOT1",
+        "model_name": "claude-2.1",
+        "model_url": "https://api.anthropic.com/v1/messages"
+        },
+        {
+        "model_id": "CL2DOT0",
+        "model_name": "claude-2.0",
+        "model_url": "https://api.anthropic.com/v1/messages"
+        },
+        {
+        "model_id": "CLINST12",
+        "model_name": "claude-instant-1.2",
+        "model_url": "https://api.anthropic.com/v1/messages"
         }
     ]
+    }
 }

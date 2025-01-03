@@ -35,3 +35,4 @@ db_client = MongoDBClient.get_client()
 db = db_client['devs_chatgpt_db_1']
 users_collection = db.get_collection('users')
 chats_collection = db.get_collection('chat')
+models_collection = db.get_collection('models')
