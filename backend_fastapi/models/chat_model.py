@@ -1,10 +1,6 @@
 from bson.objectid import ObjectId
 from typing import Optional, Dict
-from passlib.context import CryptContext
 from database.db import chats_collection
-
-# Password hashing setup (using Passlib)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Chat:
     def __init__(self, user_question: str, gpt_response: str):
