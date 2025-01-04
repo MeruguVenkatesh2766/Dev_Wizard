@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.auth import auth_router
-from api.models import models_router
+from models.ai_models_model import models_router
 from api.chat import backend_router
 from dotenv import load_dotenv
 from database.db import init_models_database
@@ -20,7 +20,7 @@ API_PREFIX = os.getenv("API_PREFIX", "/api")
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown events"""
     # Startup: Initialize the database with models
-    init_models_database()
+    await init_models_database()
     print("Models initialized in database")
     yield
     # Shutdown: Add any cleanup code here if needed

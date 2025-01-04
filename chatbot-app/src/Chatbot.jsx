@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import {
   TextField,
   Button,
@@ -30,6 +36,7 @@ import {
   FaSignOutAlt,
   FaRobot,
 } from "react-icons/fa";
+import { fetchChatResponse } from "../utils/fetchChatResponse";
 
 const drawerWidth = 240;
 
@@ -44,6 +51,38 @@ const ChatBot = ({ models }) => {
     notifications: true,
     language: "English",
   });
+
+  const [text, setText] = useState("");
+  const [message, setMessage] = useState(null);
+  const [isResponseLoading, setIsResponseLoading] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [isShowSidebar, setIsShowSidebar] = useState(false);
+  const scrollToLastItem = useRef(null);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    if (!text) return;
+
+    setIsResponseLoading(true);
+    setErrorText("");
+
+    try {
+      const responseMessage = await fetchChatResponse(text);
+
+      setMessage(responseMessage);
+      setText("");
+
+      setTimeout(() => {
+        scrollToLastItem.current?.lastElementChild?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 1);
+    } catch (error) {
+      setErrorText(error.message);
+    } finally {
+      setIsResponseLoading(false);
+    }
+  };
 
   // Sample chat history data
   const chatHistory = [
@@ -82,23 +121,36 @@ const ChatBot = ({ models }) => {
   };
 
   // Update the message response to use the actual model name
-  const handleSendMessage = () => {
-    if (input.trim() !== "") {
+  const handleSendMessage = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    if (input.trim() === "") return;
+
+    setIsResponseLoading(true); // Indicate loading response
+    setErrorText(""); // Clear any previous errors
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { text: input, sender: "user" },
+    ]);
+    setInput("");
+
+    try {
+      const responseMessage = await fetchChatResponse(input); // Fetch response from chat API
+
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: input, sender: "user" },
+        { text: responseMessage, sender: "bot" },
       ]);
-      setInput("");
+
       setTimeout(() => {
-        const selectedModelData = models.find((m) => m.id === selectedModel);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: `Response from ${selectedModelData.name}`,
-            sender: "bot",
-          },
-        ]);
-      }, 1000);
+        scrollToLastItem.current?.lastElementChild?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 1);
+    } catch (error) {
+      setErrorText(error.message); // Display error message
+    } finally {
+      setIsResponseLoading(false); // End loading state
     }
   };
 

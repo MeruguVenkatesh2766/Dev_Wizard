@@ -10,7 +10,7 @@ class ChildModel(BaseModel):
     model_name: str
     model_id: str
     model_capabilities: list
-    model_endpoint: str
+    model_api_key: bool
 
 class ModelSource(BaseModel):
     source_name: str
