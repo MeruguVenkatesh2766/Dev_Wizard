@@ -45,7 +45,8 @@ const ChatBot = ({ models }) => {
   const [apiKey, setApiKey] = useState("");
   const [input, setInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(models[0]?.id || "");
+  const [selectedModel, setSelectedModel] = useState(models[0] || {});
+  const [selectedModelId, setSelectedModelId] = useState(models[0]?.id || "");
   const [settings, setSettings] = useState({
     darkMode: false,
     notifications: true,
@@ -53,46 +54,24 @@ const ChatBot = ({ models }) => {
   });
 
   const [text, setText] = useState("");
-  const [message, setMessage] = useState(null);
+  const [chatHistory, setChatHistory] = useState(null);
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [isShowSidebar, setIsShowSidebar] = useState(false);
   const scrollToLastItem = useRef(null);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    if (!text) return;
-
-    setIsResponseLoading(true);
-    setErrorText("");
-
-    try {
-      const responseMessage = await fetchChatResponse(text);
-
-      setMessage(responseMessage);
-      setText("");
-
-      setTimeout(() => {
-        scrollToLastItem.current?.lastElementChild?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 1);
-    } catch (error) {
-      setErrorText(error.message);
-    } finally {
-      setIsResponseLoading(false);
-    }
-  };
-
   // Sample chat history data
-  const chatHistory = [
+  const chatsHistory = [
     { id: 1, title: "Previous Chat 1", date: "2025-01-02" },
     { id: 2, title: "Previous Chat 2", date: "2025-01-01" },
     { id: 3, title: "Previous Chat 3", date: "2024-12-31" },
   ];
 
   const handleModelChange = (event) => {
-    setSelectedModel(event.target.value);
+    setSelectedModelId(event.target.value);
+    models.forEach((model) => {
+      if (model.id == event.target.value) setSelectedModel(model);
+    });
   };
 
   const handleApiKeyChange = (event) => {
@@ -128,18 +107,28 @@ const ChatBot = ({ models }) => {
     setIsResponseLoading(true); // Indicate loading response
     setErrorText(""); // Clear any previous errors
 
-    setMessages((prevMessages) => [
+    setChatHistory((prevMessages) => [
       ...prevMessages,
-      { text: input, sender: "user" },
+      {
+        role: selectedModel["name"] == "chatgpt" ? "developer" : "user",
+        content: input,
+      },
     ]);
     setInput("");
 
     try {
-      const responseMessage = await fetchChatResponse(input); // Fetch response from chat API
+      const responseMessage = await fetchChatResponse(
+        apiKey,
+        selectedModel["id"],
+        selectedModel["name"],
+        selectedModel["source"],
+        selectedModel["capabilities"],
+        chatHistory
+      ); // Fetch response from chat API
 
-      setMessages((prevMessages) => [
+      setChatHistory((prevMessages) => [
         ...prevMessages,
-        { text: responseMessage, sender: "bot" },
+        { role: "assistant", content: responseMessage },
       ]);
 
       setTimeout(() => {
@@ -153,6 +142,8 @@ const ChatBot = ({ models }) => {
       setIsResponseLoading(false); // End loading state
     }
   };
+
+  useEffect(() => {});
 
   const drawer = (
     <Box
@@ -212,7 +203,7 @@ const ChatBot = ({ models }) => {
         Chat History
       </Typography>
       <List sx={{ flex: 1, overflow: "auto" }}>
-        {chatHistory.map((chat) => (
+        {chatsHistory.map((chat) => (
           <ListItem button key={chat.id}>
             <ListItemIcon>
               <FaHistory />
@@ -321,7 +312,7 @@ const ChatBot = ({ models }) => {
                   onChange={handleApiKeyChange}
                 />
                 <Select
-                  value={selectedModel}
+                  value={selectedModelId}
                   onChange={handleModelChange}
                   displayEmpty
                   sx={{

@@ -30,7 +30,6 @@ const App = () => {
             id: model.model_id,
             name: model.model_name,
             capabilities: model.model_capabilities,
-            endpoint: model.model_endpoint,
             source: source.source_name,
           }))
         );
