@@ -61,86 +61,86 @@ models = [
         "source_name": "qwen",
         "children_models": [
             {
-                "model_name": "Qwen2.5-0.5B",
+                "model_name": "Qwen/Qwen2.5-0.5B",
                 "model_id": "qwen2.5-0.5b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-0.5B-Instruct",
+                "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
                 "model_id": "qwen2.5-0.5b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-1.5B",
+                "model_name": "Qwen/Qwen2.5-1.5B",
                 "model_id": "qwen2.5-1.5b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-1.5B-Instruct",
+                "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
                 "model_id": "qwen2.5-1.5b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-3B",
+                "model_name": "Qwen/Qwen2.5-3B",
                 "model_id": "qwen2.5-3b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-3B-Instruct",
+                "model_name": "Qwen/Qwen2.5-3B-Instruct",
                 "model_id": "qwen2.5-3b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-7B",
+                "model_name": "Qwen/Qwen2.5-7B",
                 "model_id": "qwen2.5-7b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-7B-Instruct",
+                "model_name": "Qwen/Qwen2.5-7B-Instruct",
                 "model_id": "qwen2.5-7b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-14B",
+                "model_name": "Qwen/Qwen2.5-14B",
                 "model_id": "qwen2.5-14b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-14B-Instruct",
+                "model_name": "Qwen/Qwen2.5-14B-Instruct",
                 "model_id": "qwen2.5-14b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-32B",
+                "model_name": "Qwen/Qwen2.5-32B",
                 "model_id": "qwen2.5-32b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-32B-Instruct",
+                "model_name": "Qwen/Qwen2.5-32B-Instruct",
                 "model_id": "qwen2.5-32b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-72B",
+                "model_name": "Qwen/Qwen2.5-72B",
                 "model_id": "qwen2.5-72b",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             },
             {
-                "model_name": "Qwen2.5-72B-Instruct",
-                "model_id": "qwen2.5-72b-instruct",
+                "model_name": "Qwen/Qwen2.5-72B-Instruct",
+                "model_id": "Qwen/qwen2.5-72b-instruct",
                 "model_capabilities": ["text generation"],
                 "model_api_key": True
             }

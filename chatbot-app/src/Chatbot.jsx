@@ -37,24 +37,26 @@ import {
   FaRobot,
 } from "react-icons/fa";
 import { fetchChatResponse } from "../utils/fetchChatResponse";
+import { formatChatHistoryForModel } from "../utils/chatHistoryManager";
 
 const drawerWidth = 240;
 
 const ChatBot = ({ models }) => {
-  const [messages, setMessages] = useState([]);
   const [apiKey, setApiKey] = useState("");
   const [input, setInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState(models[0] || {});
   const [selectedModelId, setSelectedModelId] = useState(models[0]?.id || "");
+  const [selectedModelSource, setSelectedModelSource] = useState(
+    models[0]?.source || ""
+  );
   const [settings, setSettings] = useState({
     darkMode: false,
     notifications: true,
     language: "English",
   });
 
-  const [text, setText] = useState("");
-  const [chatHistory, setChatHistory] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [isShowSidebar, setIsShowSidebar] = useState(false);
@@ -71,6 +73,8 @@ const ChatBot = ({ models }) => {
     setSelectedModelId(event.target.value);
     models.forEach((model) => {
       if (model.id == event.target.value) setSelectedModel(model);
+      if (model.source !== selectedModelSource)
+        setSelectedModelSource(model.source);
     });
   };
 
@@ -101,33 +105,43 @@ const ChatBot = ({ models }) => {
 
   // Update the message response to use the actual model name
   const handleSendMessage = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     if (input.trim() === "") return;
 
-    setIsResponseLoading(true); // Indicate loading response
-    setErrorText(""); // Clear any previous errors
+    setIsResponseLoading(true);
+    setErrorText("");
 
-    setChatHistory((prevMessages) => [
-      ...prevMessages,
-      {
-        role: selectedModel["name"] == "chatgpt" ? "developer" : "user",
-        content: input,
-      },
-    ]);
+    // Add the new message to chat history
+    const newMessage = {
+      role:
+        selectedModelSource.toLowerCase() === "chatgpt" ? "developer" : "user",
+      content: input,
+    };
+
+    setChatHistory((prev) => [...prev, newMessage]);
     setInput("");
 
     try {
+      // Format the complete chat history for the selected model
+      const formattedHistory = formatChatHistoryForModel(
+        [...chatHistory, newMessage],
+        selectedModelSource
+      );
+
+      console.log("formattedHistory", formattedHistory);
+
       const responseMessage = await fetchChatResponse(
         apiKey,
-        selectedModel["id"],
-        selectedModel["name"],
-        selectedModel["source"],
-        selectedModel["capabilities"],
-        chatHistory
-      ); // Fetch response from chat API
+        selectedModel.id,
+        selectedModel.name,
+        selectedModel.source,
+        selectedModel.capabilities,
+        formattedHistory
+      );
 
-      setChatHistory((prevMessages) => [
-        ...prevMessages,
+      // Add the response to chat history in our standard format
+      setChatHistory((prev) => [
+        ...prev,
         { role: "assistant", content: responseMessage },
       ]);
 
@@ -137,13 +151,13 @@ const ChatBot = ({ models }) => {
         });
       }, 1);
     } catch (error) {
-      setErrorText(error.message); // Display error message
+      setErrorText(error.message);
     } finally {
-      setIsResponseLoading(false); // End loading state
+      setIsResponseLoading(false);
     }
   };
 
-  useEffect(() => {});
+  useEffect(() => {}, [selectedModelSource]);
 
   const drawer = (
     <Box
@@ -348,12 +362,13 @@ const ChatBot = ({ models }) => {
           </Box>
 
           <Box sx={{ overflow: "auto", minHeight: "65vh", maxHeight: "65vh" }}>
-            {messages.map((msg, index) => (
+            {chatHistory.map((msg, index) => (
               <Box
                 key={index}
                 sx={{
                   display: "flex",
-                  flexDirection: msg.sender === "bot" ? "row" : "row-reverse",
+                  flexDirection:
+                    msg.sender === "assistant" ? "row" : "row-reverse",
                   mb: 2,
                 }}
               >
@@ -361,8 +376,8 @@ const ChatBot = ({ models }) => {
                   sx={{
                     padding: 1,
                     backgroundColor:
-                      msg.sender === "bot" ? "#f0f0f0" : "#6200ea",
-                    color: msg.sender === "bot" ? "black" : "white",
+                      msg.sender === "assistant" ? "#f0f0f0" : "#6200ea",
+                    color: msg.sender === "assistant" ? "black" : "white",
                   }}
                 >
                   <Typography variant="body1">{msg.text}</Typography>
