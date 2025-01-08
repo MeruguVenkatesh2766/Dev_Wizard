@@ -29,6 +29,7 @@ const App = () => {
           source.children_models.map((model) => ({
             id: model.model_id,
             name: model.model_name,
+            has_api_key: model.model_api_key,
             capabilities: model.model_capabilities,
             source: source.source_name,
           }))

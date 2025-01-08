@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from core.ai_controllers.chatgpt import get_response_from_chatgpt
-from core.ai_controllers.qwen import get_response_from_qwen
+from core.ai_controllers.qwen import qwen_req_res_controller
 
 # Load config.json file
 with open('config.json', 'r') as f:
@@ -23,13 +23,16 @@ class ConversationRequest(BaseModel):
     model_source: str
     model_capabilities: List[str]
     chat_history: List[dict] = []
+    prompt: str
+    clear_history: bool
+    response_type_needed: str
 
 class BackendAPI:
     def __init__(self, config: dict):
         self.proxy = config['proxy']
         self.model_handlers = {
             'chatgpt': get_response_from_chatgpt,
-            'qwen': get_response_from_qwen
+            'qwen': qwen_req_res_controller
         }
 
     async def conversation(self, conversation_request: ConversationRequest):
@@ -57,13 +60,20 @@ class BackendAPI:
                 'api_key': conversation_request.api_key,
                 'model_id': conversation_request.model_id,
                 'model_name': conversation_request.model_name,
-                'history': conversation_request.chat_history,
-                'prompt': conversation_request.chat_history[-1]['content'] if conversation_request.chat_history else ""
+                'chat_history': conversation_request.chat_history,
+                'prompt': conversation_request.prompt,
+                'clear_history': conversation_request.clear_history,
+                'response_type_needed': conversation_request.response_type_needed
             }
-
             # Call appropriate model handler
-            response = await self.model_handlers[model_source](model_data)
-
+            response = self.model_handlers[model_source](
+                model_name=model_data["model_name"],
+                chat_history=model_data.get("chat_history", []),
+                prompt=model_data.get("prompt", ""),
+                response_type_needed=model_data.get("response_type_needed", "text-based"),
+                clear_history=model_data.get("clear_history", True)
+            )
+            print("RESPONSE", response)
             return {
                 'response': response,
                 'timestamp': datetime.utcnow().isoformat(),

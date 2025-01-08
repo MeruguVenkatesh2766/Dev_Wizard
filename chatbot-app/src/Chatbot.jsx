@@ -38,6 +38,7 @@ import {
 } from "react-icons/fa";
 import { fetchChatResponse } from "../utils/fetchChatResponse";
 import { formatChatHistoryForModel } from "../utils/chatHistoryManager";
+import { addMessageToChat, uuid, createDateAndTime } from "../utils/helper";
 
 const drawerWidth = 240;
 
@@ -47,6 +48,7 @@ const ChatBot = ({ models }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState(models[0] || {});
   const [selectedModelId, setSelectedModelId] = useState(models[0]?.id || "");
+  const [selectedModelCapability, setSelectedModelCapability] = useState("");
   const [selectedModelSource, setSelectedModelSource] = useState(
     models[0]?.source || ""
   );
@@ -56,7 +58,13 @@ const ChatBot = ({ models }) => {
     language: "English",
   });
 
+  const [chatId, setChatId] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
+  const [clearHistory, setClearHistory] = useState(true);
+  const [responseTypeNeeded, setResponseTypeNeeded] = useState("text-based");
+  // const [responseTypeNeeded, setResponseTypeNeeded] = useState(
+  //   models[0]?.capabilities[0]
+  // );
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [isShowSidebar, setIsShowSidebar] = useState(false);
@@ -111,54 +119,71 @@ const ChatBot = ({ models }) => {
     setIsResponseLoading(true);
     setErrorText("");
 
+    const newMessage = {role:
+      selectedModelSource.toLowerCase() === "chatgpt" ? "developer" : "user",
+    content: input
+  };
     // Add the new message to chat history
-    const newMessage = {
-      role:
-        selectedModelSource.toLowerCase() === "chatgpt" ? "developer" : "user",
-      content: input,
+    let defaultData = {
+      chat_id: chatId,
+      created_at: createDateAndTime(),
+      conversation:[newMessage],
+      model_source: selectedModelSource,
+      model: selectedModel,
+      selected_capability: selectedModelCapability
     };
-
-    setChatHistory((prev) => [...prev, newMessage]);
-    setInput("");
-
+    
     try {
-      // Format the complete chat history for the selected model
+      // Add user message to current chat history
+      setChatHistory((prev) => [...prev, defaultData]);
+      setInput("");
+
+      // Format the chat history based on model source
       const formattedHistory = formatChatHistoryForModel(
         [...chatHistory, newMessage],
         selectedModelSource
       );
 
-      console.log("formattedHistory", formattedHistory);
+      console.log("Formatted history:", formattedHistory);
 
-      const responseMessage = await fetchChatResponse(
+      // Make API call with formatted history
+      const response = await fetchChatResponse(
         apiKey,
         selectedModel.id,
         selectedModel.name,
         selectedModel.source,
         selectedModel.capabilities,
-        formattedHistory
+        formattedHistory,
+        input,
+        clearHistory,
+        responseTypeNeeded
       );
 
-      // Add the response to chat history in our standard format
-      setChatHistory((prev) => [
-        ...prev,
-        { role: "assistant", content: responseMessage },
-      ]);
+      // Add the response to chat history
+      const assistantMessage = { role: "assistant", content: response };
+      defaultData = 
+      setChatHistory((prev) => [...prev, defaultData['conversation'].push(assistantMessage)]);
 
+      // Save to localStorage if needed
+      addMessageToChat(conversationId, newMessage.role, input);
+      addMessageToChat(conversationId, "assistant", response);
+
+      // Scroll to bottom
       setTimeout(() => {
         scrollToLastItem.current?.lastElementChild?.scrollIntoView({
           behavior: "smooth",
         });
-      }, 1);
+      }, 100);
     } catch (error) {
       setErrorText(error.message);
     } finally {
       setIsResponseLoading(false);
     }
   };
-
-  useEffect(() => {}, [selectedModelSource]);
-
+  useEffect(() => {
+    setChatId(uuid())
+  }, [selectedModelSource]);
+  console.log("SM", selectedModel);
   const drawer = (
     <Box
       sx={{
@@ -213,6 +238,9 @@ const ChatBot = ({ models }) => {
       </List> */}
       <Divider />
 
+      <Typography variant="h6" sx={{ p: 2, paddingBottom: 0 }}>
+        New Chat
+      </Typography>
       <Typography variant="h6" sx={{ p: 2 }}>
         Chat History
       </Typography>
@@ -318,13 +346,15 @@ const ChatBot = ({ models }) => {
             {/* Model Selector */}
             <FormControl size="small">
               <Box sx={{ display: "flex", gap: "1rem" }}>
-                <TextField
-                  sx={{ minWidth: "350px" }}
-                  label="Type your api-key here"
-                  variant="outlined"
-                  value={apiKey}
-                  onChange={handleApiKeyChange}
-                />
+                {selectedModel["has_api_key"] && (
+                  <TextField
+                    sx={{ minWidth: "30%" }}
+                    label="Type your api-key here"
+                    variant="outlined"
+                    value={apiKey}
+                    onChange={handleApiKeyChange}
+                  />
+                )}
                 <Select
                   value={selectedModelId}
                   onChange={handleModelChange}

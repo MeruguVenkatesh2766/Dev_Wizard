@@ -5,25 +5,25 @@ models = [
             {
                 "model_name": "gpt-4o",
                 "model_id": "gpt-4o-2024-08-06",
-                "model_capabilities": ["text-based", "image-based", "structured outputs"],
+                "model_capabilities": ["text-based", "code-based", "image-based", "structured-outputs"],
                 "model_api_key": True
             },
             {
                 "model_name": "gpt-4o",
                 "model_id": "gpt-4o-2024-11-20",
-                "model_capabilities": ["text-based", "image-based", "structured outputs"],
+                "model_capabilities": ["text-based", "code-based", "image-based", "structured-outputs"],
                 "model_api_key": True
             },
             {
                 "model_name": "gpt-4o",
                 "model_id": "gpt-4o-2024-05-13",
-                "model_capabilities": ["text-based", "image-based", "structured outputs"],
+                "model_capabilities": ["text-based", "code-based", "image-based", "structured-outputs"],
                 "model_api_key": True
             },
             {
                 "model_name": "gpt-4o-mini",
                 "model_id": "gpt-4o-mini-2024-07-18",
-                "model_capabilities": ["text-based", "image-based", "structured outputs"],
+                "model_capabilities": ["text-based", "code-based", "image-based", "structured-outputs"],
                 "model_api_key": True
             }
         ]
@@ -34,7 +34,7 @@ models = [
             {
                 "model_name": "Gemini 2.0 Flash",
                 "model_id": "gemini-2.0-flash-exp",
-                "model_capabilities": ["audio-based", "image-based", "video-based", "text-based", "multimodal generation"],
+                "model_capabilities": ["audio-based", "image-based", "video-based", "text-based", "multimodal-generation"],
                 "model_api_key": True
             },
             {
@@ -63,86 +63,86 @@ models = [
             {
                 "model_name": "Qwen/Qwen2.5-0.5B",
                 "model_id": "qwen2.5-0.5b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
                 "model_id": "qwen2.5-0.5b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-1.5B",
                 "model_id": "qwen2.5-1.5b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
                 "model_id": "qwen2.5-1.5b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-3B",
                 "model_id": "qwen2.5-3b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-3B-Instruct",
                 "model_id": "qwen2.5-3b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-7B",
                 "model_id": "qwen2.5-7b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-7B-Instruct",
                 "model_id": "qwen2.5-7b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-14B",
                 "model_id": "qwen2.5-14b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-14B-Instruct",
                 "model_id": "qwen2.5-14b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-32B",
                 "model_id": "qwen2.5-32b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-32B-Instruct",
                 "model_id": "qwen2.5-32b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-72B",
                 "model_id": "qwen2.5-72b",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             },
             {
                 "model_name": "Qwen/Qwen2.5-72B-Instruct",
                 "model_id": "Qwen/qwen2.5-72b-instruct",
-                "model_capabilities": ["text generation"],
-                "model_api_key": True
+                "model_capabilities": ["text-based", "code-based"],
+                "model_api_key": False
             }
         ]
     }

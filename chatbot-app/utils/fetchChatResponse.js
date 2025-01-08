@@ -1,14 +1,14 @@
 // chat.js
 import { API_URL } from "../config";
 
-export async function fetchChatResponse(api_key, model_id, model_name, model_source, model_capabilities, chat_history) {
+export async function fetchChatResponse(api_key, model_id, model_name, model_source, model_capabilities, chat_history, prompt, clear_history, response_type_needed, create_time) {
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         },
-        body: JSON.stringify({ api_key, model_id, model_name, model_source, model_capabilities, chat_history }),
+        body: JSON.stringify({ api_key, model_id, model_name, model_source, model_capabilities, chat_history, prompt, clear_history, response_type_needed, create_time }),
     };
 
     try {
