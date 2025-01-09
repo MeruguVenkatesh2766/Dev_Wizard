@@ -2,8 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.auth import auth_router
-from models.ai_models_model import models_router
-from api.chat import backend_router
+from api.ai_models_model import models_router
+from api.model_handler import backend_router
+from api.chat import chat_router
 from dotenv import load_dotenv
 from database.db import init_models_database
 import os
@@ -46,6 +47,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/backend-api", tags=["Auth"])
 app.include_router(models_router, prefix="/backend-api", tags=["Models"])
 app.include_router(backend_router, prefix="/backend-api", tags=["Backend"])
+app.include_router(chat_router, prefix="/backend-api", tags=["Chat"])
 
 # Root route to test the domain
 @app.get("/")

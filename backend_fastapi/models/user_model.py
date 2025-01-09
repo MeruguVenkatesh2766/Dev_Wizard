@@ -7,14 +7,16 @@ from database.db import users_collection
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class User:
-    def __init__(self, username: str, password: str):
-        self.username = username
+    def __init__(self, user_name: str,user_email: str, password: str):
+        self.user_name = user_name
+        self.user_email = user_email
         self.password = password
 
     def to_dict(self) -> Dict[str, str]:
         """Convert User instance to dictionary."""
         return {
-            'username': self.username,
+            'user_name': self.user_name,
+            'user_email': self.user_email,
             'password': self.password
         }
 
@@ -37,23 +39,23 @@ class User:
         return str(result.inserted_id)  # Return the inserted user ID as a string
 
     @staticmethod
-    def read_user(username: str) -> Optional['User']:
-        """Read a user by username."""
-        user_data = users_collection.find_one({'username': username})
+    def read_user(user_email: str) -> Optional['User']:
+        """Read a user by user_email."""
+        user_data = users_collection.find_one({'user_email': user_email})
         if user_data:
-            return User(username=user_data['username'], password=user_data['password'])
+            return User(user_email=user_data['user_email'], password=user_data['password'])
         return None
 
     @staticmethod
-    def update_user(username: str, updated_fields: Dict) -> bool:
+    def update_user(user_email: str, updated_fields: Dict) -> bool:
         """Update user information."""
         if not isinstance(updated_fields, dict):
             raise ValueError("updated_fields must be a dictionary.")
-        result = users_collection.update_one({'username': username}, {'$set': updated_fields})
+        result = users_collection.update_one({'user_email': user_email}, {'$set': updated_fields})
         return result.modified_count > 0
 
     @staticmethod
-    def delete_user(username: str) -> bool:
-        """Delete a user by username."""
-        result = users_collection.delete_one({'username': username})
+    def delete_user(user_email: str) -> bool:
+        """Delete a user by user_email."""
+        result = users_collection.delete_one({'user_email': user_email})
         return result.deleted_count > 0

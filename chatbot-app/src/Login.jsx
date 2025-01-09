@@ -7,7 +7,8 @@ import {
   Box,
   Link,
 } from "@mui/material";
-import { API_URL } from "../config";
+import { signup, login } from "../api/authApi";
+import { useNavigate } from "react-router-dom"; // For redirecting after login/signup
 
 const LoginPage = () => {
   const [name, setName] = useState("");
@@ -15,6 +16,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,32 +24,20 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        `${API_URL}/${
-          window.location.href.includes("signup") ? "signup" : "login"
-        }`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: email,
-            password: password,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("access_token", data.access_token);
-        window.location.href = "/";
+      if (window.location.href.includes("signup")) {
+        // SignUp API call
+        await signup(email, password);
+        navigate("/login"); // Redirect to login after successful signup
       } else {
-        setError(data.message || "An error occurred. Please try again.");
+        // Login API call
+        const { access_token } = await login(email, password);
+        localStorage.setItem("access_token", access_token);
+        navigate("/dashboard"); // Redirect to dashboard or another protected route
       }
     } catch (error) {
-      setError("An unexpected error occurred. Please try again.");
+      setError(
+        error.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }

@@ -1,21 +1,18 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone
 import jwt
-from database.db import users_collection
+from models.user_model import User
 
 # OAuth2PasswordBearer is used for obtaining JWT token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Pydantic Models
 class User(BaseModel):
-    username: str
+    user_name: str
+    user_email: str
     password: str
-
-class UserInDB(User):
-    hashed_password: str
 
 # FastAPI Router
 auth_router = APIRouter()
@@ -36,28 +33,30 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
 # SignUp Route
 @auth_router.post("/signup")
 async def signup(user: User):
-    existing_user = await users_collection.find_one({'username': user.username})
+    # Use User class method to check for existing user
+    existing_user = await User.read_user(user.user_email)
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
     
-    hashed_password = generate_password_hash(user.password)
-    new_user = {'username': user.username, 'password': hashed_password}
-
-    users_collection.insert_one(new_user)
-    return {"message": "User created successfully"}
+    # Create a new user using the User class method
+    new_user = User(user_name=user.user_name, user_email=user.user_email, password=user.password)
+    user_id = await User.create_user(new_user)  # Use create_user method to save user
+    
+    return {"message": "User created successfully", "user_id": user_id}
 
 # Login Route
 @auth_router.post("/login")
 async def login(user: User):
-    db_user = await users_collection.find_one({'username': user.username})
+    # Use User class method to read the user
+    db_user = await User.read_user(user.user_email)
     
     if not db_user:
-        print(f"User not found: {user.username}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    if not check_password_hash(db_user['password'], user.password):
-        print(f"Password mismatch for user: {user.username}")
+    # Verify password using the User class method
+    if not User.verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    access_token = create_access_token(data={"sub": db_user['username']})
+    # Create JWT token after successful login
+    access_token = create_access_token(data={"sub": db_user.user_email})
     return {"access_token": access_token, "token_type": "bearer"}
