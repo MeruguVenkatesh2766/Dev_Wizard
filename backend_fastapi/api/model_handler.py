@@ -1,9 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
-import os
 import json
-import requests
 from datetime import datetime
 from typing import List, Optional
 
