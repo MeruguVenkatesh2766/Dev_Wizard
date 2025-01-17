@@ -1,3 +1,4 @@
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, List, Optional, Union
 from models.chat_model import Chat

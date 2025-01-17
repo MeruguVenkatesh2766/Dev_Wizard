@@ -46,8 +46,11 @@ const ChatBot = ({ models }) => {
   const [apiKey, setApiKey] = useState("");
   const [input, setInput] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(models[0] || {});
-  const [selectedModelId, setSelectedModelId] = useState(models[0]?.id || "");
+  const [selectedModel, setSelectedModel] = useState(
+    models.find((e) => e.id === localStorage.getItem("model_id")) || models[0]
+  );
+
+  const [selectedModelId, setSelectedModelId] = useState("");
   const [selectedModelCapability, setSelectedModelCapability] = useState("");
   const [selectedModelSource, setSelectedModelSource] = useState(
     models[0]?.source || ""
@@ -80,7 +83,10 @@ const ChatBot = ({ models }) => {
   const handleModelChange = (event) => {
     setSelectedModelId(event.target.value);
     models.forEach((model) => {
-      if (model.id == event.target.value) setSelectedModel(model);
+      if (model.id == event.target.value) {
+        setSelectedModel(model);
+        localStorage.setItem("model_id", model.id);
+      }
       if (model.source !== selectedModelSource)
         setSelectedModelSource(model.source);
     });
@@ -120,9 +126,9 @@ const ChatBot = ({ models }) => {
     setErrorText("");
 
     const newMessage = {role:
-      selectedModelSource.toLowerCase() === "chatgpt" ? "developer" : "user",
+        selectedModelSource.toLowerCase() === "chatgpt" ? "developer" : "user",
     content: input
-  };
+    };
     // Add the new message to chat history
     let defaultData = {
       chat_id: chatId,
@@ -132,7 +138,7 @@ const ChatBot = ({ models }) => {
       model: selectedModel,
       selected_capability: selectedModelCapability
     };
-    
+
     try {
       // Add user message to current chat history
       setChatHistory((prev) => [...prev, defaultData]);
@@ -160,7 +166,7 @@ const ChatBot = ({ models }) => {
       );
 
       // Add the response to chat history
-      const assistantMessage = { role: "assistant", content: response };
+        const assistantMessage = { role: "assistant", content: response };
       defaultData = 
       setChatHistory((prev) => [...prev, defaultData['conversation'].push(assistantMessage)]);
 
@@ -169,11 +175,11 @@ const ChatBot = ({ models }) => {
       addMessageToChat(conversationId, "assistant", response);
 
       // Scroll to bottom
-      setTimeout(() => {
-        scrollToLastItem.current?.lastElementChild?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 100);
+        setTimeout(() => {
+          scrollToLastItem.current?.lastElementChild?.scrollIntoView({
+            behavior: "smooth",
+          });
+        }, 100);
     } catch (error) {
       setErrorText(error.message);
     } finally {
