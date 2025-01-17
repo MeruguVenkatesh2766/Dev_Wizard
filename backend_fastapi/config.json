@@ -11,6 +11,10 @@
         "http": "127.0.0.1:7890",
         "https": "127.0.0.1:7890"
     },
+    "kafka": {
+        "broker": "localhost:9092",
+        "topic": "ai-tasks"
+    },
     "jwt_secret_key": "1234",
     "database_uri": "mongodb+srv://venkatesh_nestor:Cluster0@cluster0.2krpo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     "secret_key": "0000"
